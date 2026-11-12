@@ -177,7 +177,7 @@ class Codemirror {
         if (userInput) this.setFormattingResult(userInput);
     };
 
-    public validateInput = async (validationResult: unknown) => {
+    public validateInput = (validationResult: unknown) => {
         if (validationResult) this.setValidationResult(validationResult);
     };
 

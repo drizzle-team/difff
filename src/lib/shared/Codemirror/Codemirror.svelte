@@ -29,7 +29,7 @@
 
     const useTabs = $derived($storageSettings[format].tab || false);
     const indentationLevel = $derived($storageSettings[format].spaces);
-    const formatter = new Formatter(format);
+    const formatter = $derived(new Formatter(format));
 
     $effect(() => {
         if (value === "") {

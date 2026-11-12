@@ -10,7 +10,7 @@ class Validator {
         this.format = format;
     }
 
-    private validateYAML = (input: string): true | unknown => {
+    private validateYAML = (input: string): unknown => {
         try {
             yaml.load(input);
             return true;
@@ -21,7 +21,7 @@ class Validator {
 
     private validateXML = (input: string): true | XMLValidationError => validateXML(input);
 
-    private validateJSON = (input: string): Promise<true | unknown> => {
+    private validateJSON = (input: string): Promise<unknown> => {
         return formatWithPrettier(input, prettierJSONSettings)
             .then(() => {
                 return true;
@@ -31,7 +31,7 @@ class Validator {
             });
     };
 
-    private validateJS = (input: string): Promise<true | unknown> => {
+    private validateJS = (input: string): Promise<unknown> => {
         return formatWithPrettier(input, prettierJSSettings)
             .then(() => {
                 return true;
@@ -41,7 +41,7 @@ class Validator {
             });
     };
 
-    private validateSQL = async (input: string): Promise<true | unknown> => {
+    private validateSQL = async (input: string): Promise<unknown> => {
         try {
             await formatSQL(input, prettierSQLSettings);
             return true;

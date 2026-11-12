@@ -4,7 +4,12 @@ import { js2xml, xml2json } from "xml-js";
 import type { Formats, PossibleJSON } from "~/types";
 
 export type ConversionName =
-    "jsonToXml" | "xmlToJson" | "jsonToYaml" | "yamlToJson" | "yamlToXml" | "xmlToYaml";
+    | "jsonToXml"
+    | "xmlToJson"
+    | "jsonToYaml"
+    | "yamlToJson"
+    | "yamlToXml"
+    | "xmlToYaml";
 
 export class Converter {
     private sanitizeTags = (xmlString: string) => {

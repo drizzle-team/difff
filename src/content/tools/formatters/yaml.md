@@ -44,7 +44,6 @@ null:
     - null
     -  # empty also null
 
-
 #boolean
 boolean:
     - TRUE

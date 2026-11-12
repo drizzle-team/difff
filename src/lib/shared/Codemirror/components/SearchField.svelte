@@ -94,6 +94,8 @@
         <div class="search">
             <div class="search_row">
                 <div class="input_wrapper">
+                    <!-- Opened by an explicit click or Ctrl/Cmd+F, so focusing the field is expected. -->
+                    <!-- svelte-ignore a11y_autofocus -->
                     <input
                         bind:value={search}
                         autocomplete="off"

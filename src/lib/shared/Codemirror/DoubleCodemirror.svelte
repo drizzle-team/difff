@@ -59,8 +59,8 @@
     const useTabsRight = $derived($storageSettings[formatRight].tab || false);
     const indentationLevelRight = $derived($storageSettings[formatRight].spaces);
 
-    const formatterLeft = new Formatter(formatLeft);
-    const formatterRight = new Formatter(formatRight);
+    const formatterLeft = $derived(new Formatter(formatLeft));
+    const formatterRight = $derived(new Formatter(formatRight));
 
     $effect(() => {
         if (valueLeft === "") {

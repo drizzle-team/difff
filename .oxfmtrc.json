@@ -1,0 +1,13 @@
+{
+    "$schema": "./node_modules/oxfmt/configuration_schema.json",
+    "useTabs": false,
+    "singleQuote": false,
+    "trailingComma": "none",
+    "semi": true,
+    "tabWidth": 4,
+    "printWidth": 100,
+    "endOfLine": "lf",
+    "svelte": true,
+    "astro": true,
+    "ignorePatterns": ["pnpm-lock.yaml", "pnpm-workspace.yaml", "dist", ".astro", ".wrangler"]
+}

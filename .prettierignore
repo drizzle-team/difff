@@ -1,6 +1,0 @@
-pnpm-lock.yaml
-pnpm-workspace.yaml
-dist
-.astro
-.wrangler
-node_modules
