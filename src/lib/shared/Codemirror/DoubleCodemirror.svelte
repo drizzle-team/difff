@@ -1,9 +1,10 @@
 <script lang="ts">
-    import { browser } from "$app/environment";
-    import { onDestroy, onMount } from "svelte";
+    import { onMount } from "svelte";
     import Header from "~/lib/shared/Codemirror/components/Header.svelte";
     import ErrorModal from "~/lib/shared/Codemirror/components/ErrorModal.svelte";
     import SettingsModal from "~/lib/shared/Codemirror/components/SettingsModal.svelte";
+    import DoubleFooter from "~/lib/shared/Codemirror/components/DoubleFooter.svelte";
+    import SearchField from "~/lib/shared/Codemirror/components/SearchField.svelte";
     import {
         errorMessage,
         isSearchOpen,
@@ -11,200 +12,160 @@
         showError,
         storageSettings
     } from "~/storage/store";
-    import DoubleFooter from "~/lib/shared/Codemirror/components/DoubleFooter.svelte";
-    import LocalStorage from "~/storage/LocalStorage";
     import type { CursorPosition, Formats, SearchData, UploadEvent } from "~/types";
-    import type { LocaleStorageResponce } from "~/storage/types";
     import Editor from "~/lib/shared/Codemirror/Editor";
     import Formatter from "~/utils/Formatter";
-    import Converter from "~/utils/Converter";
-    import SearchField from "~/lib/shared/Codemirror/components/SearchField.svelte";
+    import Converter, { type ConversionName } from "~/utils/Converter";
 
-    export let formatLeft: Formats;
-    export let formatRight: Formats;
-    export let placeholderLeft: string;
-    export let placeholderRight: string;
-    export let convertFunction: (input: string) => string;
-    export let labelLeft: string;
-    export let labelRight: string;
+    interface Props {
+        formatLeft: Formats;
+        formatRight: Formats;
+        placeholderLeft: string;
+        placeholderRight: string;
+        /** Name of the Converter method; islands can only receive serializable props. */
+        convert: ConversionName;
+        labelLeft: string;
+        labelRight: string;
+    }
 
+    let {
+        formatLeft,
+        formatRight,
+        placeholderLeft,
+        placeholderRight,
+        convert,
+        labelLeft,
+        labelRight
+    }: Props = $props();
+
+    let wrapper: HTMLDivElement;
     let elementLeft: HTMLDivElement;
-    let valueLeft: string = "";
-    let codemirrorLeft: Editor;
-    let cursorPositionLeft: CursorPosition = { line: 0, col: 0 };
-    let useTabsLeft: boolean;
-    let indentationLevelLeft: number;
-    let storageLeft: LocaleStorageResponce;
+    let elementRight: HTMLDivElement;
+    let codemirrorLeft: Editor | undefined = $state();
+    let codemirrorRight: Editor | undefined = $state();
+    let valueLeft = $state("");
+    let valueRight = $state("");
+    let cursorPositionLeft: CursorPosition = $state({ line: 0, col: 0 });
+    let cursorPositionRight: CursorPosition = $state({ line: 0, col: 0 });
+
+    let dividerPos = $state(50);
+    let isDownloadClicked = $state(false);
+    let isCopyClicked = $state(false);
+    let isFormatClicked = $state(false);
+    let isClearClicked = $state(false);
+
+    const useTabsLeft = $derived($storageSettings[formatLeft].tab || false);
+    const indentationLevelLeft = $derived($storageSettings[formatLeft].spaces);
+    const useTabsRight = $derived($storageSettings[formatRight].tab || false);
+    const indentationLevelRight = $derived($storageSettings[formatRight].spaces);
 
     const formatterLeft = new Formatter(formatLeft);
-
-    let elementRight: HTMLDivElement;
-    let valueRight: string = "";
-    let codemirrorRight: Editor;
-    let cursorPositionRight: CursorPosition = { line: 0, col: 0 };
-    let useTabsRight: boolean;
-    let indentationLevelRight: number;
-    let storageRight: LocaleStorageResponce;
     const formatterRight = new Formatter(formatRight);
 
-    let dividerPos = 50;
-    let isDownloadClicked: boolean = false;
-    let isCopyClicked: boolean = false;
-    let isFormatClicked: boolean = false;
-    let isClearClicked: boolean = false;
-    let performSearch: (searchData: SearchData) => void;
-    let nextSearchValue: () => void;
-    let previousSearchValue: () => void;
-    let selectAllMatches: () => void;
-    let replaceNext: () => void;
-    let replaceAll: () => void;
-    let closeSearch: () => void;
-
-    $: useTabsLeft = $storageSettings[formatLeft].tab || false;
-    $: indentationLevelLeft = $storageSettings[formatLeft].spaces;
-    $: useTabsRight = $storageSettings[formatRight].tab || false;
-    $: indentationLevelRight = $storageSettings[formatRight].spaces;
-    $: {
+    $effect(() => {
         if (valueLeft === "") {
             $showError = false;
             $errorMessage = "";
         }
-    }
+    });
+
+    const flash = (set: (v: boolean) => void) => {
+        set(true);
+        setTimeout(() => set(false), 1000);
+    };
+
+    const formatLeftAndSet = async (input: string) => {
+        const formatted = await formatterLeft.formatInput(input, useTabsLeft, indentationLevelLeft);
+        codemirrorLeft?.setFormattingResult(formatted);
+    };
 
     const handleMainClick = async () => {
-        const converted = convertFunction(valueLeft);
-        const formattedResult = await formatterRight.formatInput(
+        const converted = Converter[convert](valueLeft);
+        const formatted = await formatterRight.formatInput(
             converted,
             useTabsRight,
             indentationLevelRight
         );
-        codemirrorRight.setFormattingResult(formattedResult);
+        codemirrorRight?.setFormattingResult(formatted);
     };
 
     const handleFormatClick = async () => {
-        isFormatClicked = true;
-        setTimeout(() => {
-            isFormatClicked = false;
-        }, 1000);
-        const formattedData = await formatterLeft.formatInput(
-            valueLeft,
-            useTabsLeft,
-            indentationLevelLeft
-        );
-        codemirrorLeft.setFormattingResult(formattedData);
+        flash((v) => (isFormatClicked = v));
+        await formatLeftAndSet(valueLeft);
     };
 
-    const handleClearClick = async () => {
-        codemirrorLeft.updateCodemirrorValue("");
-        isClearClicked = true;
-        codemirrorRight.updateCodemirrorValue("");
-        setTimeout(() => {
-            isClearClicked = false;
-        }, 1000);
+    const handleClearClick = () => {
+        flash((v) => (isClearClicked = v));
+        codemirrorLeft?.updateCodemirrorValue("");
+        codemirrorRight?.updateCodemirrorValue("");
     };
 
     const handlePaste = async () => {
-        const input = await Converter.urlToJson(valueLeft);
-        const formattedData = await formatterLeft.formatInput(
-            input,
-            useTabsLeft,
-            indentationLevelLeft
-        );
-        codemirrorLeft.setFormattingResult(formattedData);
+        await formatLeftAndSet(await Converter.urlToJson(valueLeft));
+    };
+
+    const readFile = (file: File, delay = 0) => {
+        const reader = new FileReader();
+        reader.onload = async (e: ProgressEvent<FileReader>) => {
+            const data = await Converter.urlToJson(e.target?.result as string);
+            codemirrorLeft?.updateCodemirrorValue(data);
+            setTimeout(() => formatLeftAndSet(data), delay);
+        };
+        reader.readAsText(file);
     };
 
     const handleDrop = (event: DragEvent) => {
         event.preventDefault();
-        if (event.dataTransfer && event.dataTransfer.files.length > 0) {
-            const oldValue = valueLeft;
-            const file = event.dataTransfer.files[0];
-            const reader = new FileReader();
-            reader.onload = async (e: ProgressEvent<FileReader>) => {
-                let droppedData = e.target?.result as string;
-                droppedData = await Converter.urlToJson(droppedData);
-                codemirrorLeft.updateCodemirrorValue(droppedData);
-                const formattedData = await formatterLeft.formatInput(
-                    droppedData,
-                    useTabsLeft,
-                    indentationLevelLeft
-                );
-                codemirrorLeft.setFormattingResult(formattedData);
-            };
-            if (valueLeft !== oldValue) {
-                codemirrorLeft.scrollToTop();
-            }
-            reader.readAsText(file);
-        }
+        const file = event.dataTransfer?.files[0];
+        if (file) readFile(file);
     };
 
     const handleFileChange = (event: UploadEvent) => {
         event.preventDefault();
-        if (
-            event.currentTarget &&
-            event.currentTarget.files &&
-            event.currentTarget.files.length > 0
-        ) {
-            const file = event.currentTarget.files[0];
-            const reader = new FileReader();
-            reader.onload = async (e: ProgressEvent<FileReader>) => {
-                let droppedData = e.target?.result as string;
-                droppedData = await Converter.urlToJson(droppedData);
-                codemirrorLeft.updateCodemirrorValue(droppedData);
-                setTimeout(async () => {
-                    const formattedData = await formatterLeft.formatInput(
-                        droppedData,
-                        useTabsLeft,
-                        indentationLevelLeft
-                    );
-                    codemirrorLeft.setFormattingResult(formattedData);
-                }, 10); // REDO
-            };
-            reader.readAsText(file);
-        }
+        const file = event.currentTarget.files?.[0];
+        if (file) readFile(file, 10);
     };
 
     const handleCopyClick = async () => {
-        isCopyClicked = true;
-        setTimeout(() => {
-            isCopyClicked = false;
-        }, 1000);
+        flash((v) => (isCopyClicked = v));
         await navigator.clipboard.writeText(valueRight);
     };
 
     const handleDownloadClick = () => {
-        isDownloadClicked = true;
-        setTimeout(() => {
-            isDownloadClicked = false;
-        }, 1000);
-        codemirrorRight.downloadFile(valueRight);
+        flash((v) => (isDownloadClicked = v));
+        codemirrorRight?.downloadFile(valueRight);
     };
 
     const handleDividerMove = (event: MouseEvent) => {
-        const wrapperRect = document
-            .querySelector(".double_field_wrapper")
-            ?.getBoundingClientRect();
-        if (wrapperRect) {
-            const newX = ((event.clientX - wrapperRect.left) / wrapperRect.width) * 100;
-            dividerPos = Math.max(20, Math.min(newX, 82));
-        }
+        const rect = wrapper.getBoundingClientRect();
+        const newX = ((event.clientX - rect.left) / rect.width) * 100;
+        dividerPos = Math.max(20, Math.min(newX, 82));
     };
 
     const handleMouseUp = () => {
         window.removeEventListener("mousemove", handleDividerMove);
         window.removeEventListener("mouseup", handleMouseUp);
-        if (browser) document.body.style.cursor = "";
+        document.body.style.cursor = "";
     };
 
     const handleMouseDown = () => {
         window.addEventListener("mousemove", handleDividerMove);
         window.addEventListener("mouseup", handleMouseUp);
-        if (browser) document.body.style.cursor = "ew-resize";
+        document.body.style.cursor = "ew-resize";
     };
 
+    const performSearch = (searchData: SearchData) => codemirrorLeft?.performSearch(searchData);
+    const nextSearchValue = () => codemirrorLeft?.nextSearchValue();
+    const previousSearchValue = () => codemirrorLeft?.previousSearchValue();
+    const selectAllMatches = () => codemirrorLeft?.selectAllMatches();
+    const replaceNext = () => codemirrorLeft?.replace();
+    const replaceAll = () => codemirrorLeft?.replaceAll();
+    const closeSearch = () => codemirrorLeft?.closeSearch();
+
     onMount(() => {
-        codemirrorLeft = new Editor({
+        const left = new Editor({
             element: elementLeft,
-            outerValueChange: (newValue: string, newCursorPos) => {
+            outerValueChange: (newValue, newCursorPos) => {
                 valueLeft = newValue;
                 cursorPositionLeft = newCursorPos;
             },
@@ -213,13 +174,9 @@
             format: formatLeft,
             readOnly: false
         });
-        storageLeft = LocalStorage.get(formatLeft);
-        useTabsLeft = storageLeft?.tab || useTabsLeft;
-        indentationLevelLeft = storageLeft?.spaces || indentationLevelLeft;
-
-        codemirrorRight = new Editor({
+        const right = new Editor({
             element: elementRight,
-            outerValueChange: (newValue: string, newCursorPos) => {
+            outerValueChange: (newValue, newCursorPos) => {
                 valueRight = newValue;
                 cursorPositionRight = newCursorPos;
             },
@@ -228,36 +185,22 @@
             format: formatRight,
             readOnly: true
         });
+        codemirrorLeft = left;
+        codemirrorRight = right;
 
-        performSearch = codemirrorLeft.performSearch;
-        nextSearchValue = codemirrorLeft.nextSearchValue;
-        previousSearchValue = codemirrorLeft.previousSearchValue;
-        selectAllMatches = codemirrorLeft.selectAllMatches;
-        replaceNext = codemirrorLeft.replace;
-        replaceAll = codemirrorLeft.replaceAll;
-        closeSearch = codemirrorLeft.closeSearch;
+        document.addEventListener("paste", handlePaste);
+        document.addEventListener("drop", handleDrop);
+        elementLeft
+            .querySelector(".cm-content")
+            ?.setAttribute("aria-label", `${formatLeft.toUpperCase()} input`);
 
-        storageRight = LocalStorage.get(formatRight);
-        useTabsRight = storageRight?.tab || useTabsRight;
-        indentationLevelRight = storageRight?.spaces || indentationLevelRight;
-        if (browser) {
-            document.addEventListener("paste", handlePaste);
-            document.addEventListener("drop", handleDrop);
-            const cmDiv = document.getElementsByClassName("cm-content");
-            if (cmDiv.length > 0) {
-                cmDiv[0].setAttribute("aria-label", "JSON input");
-                cmDiv[0].setAttribute("aria-labelledby", "JSON input");
-            }
-        }
-    });
-
-    onDestroy(() => {
-        codemirrorLeft?.destroy();
-        codemirrorRight?.destroy();
-        if (browser) {
+        return () => {
+            left.destroy();
+            right.destroy();
+            handleMouseUp();
             document.removeEventListener("paste", handlePaste);
             document.removeEventListener("drop", handleDrop);
-        }
+        };
     });
 </script>
 
@@ -268,9 +211,9 @@
     {handleMainClick}
     {closeSearch}
 />
-<div class="double_field_wrapper" style={`--pos: ${dividerPos}%;`}>
+<div class="double_field_wrapper" bind:this={wrapper} style={`--pos: ${dividerPos}%;`}>
     <div class="field_wrapper">
-        <div class="codemirror-wrapper" bind:this={elementLeft} />
+        <div class="codemirror-wrapper" bind:this={elementLeft}></div>
         {#if $isSearchOpen}
             <SearchField
                 {performSearch}
@@ -287,18 +230,18 @@
         {/if}
     </div>
     <div
-        on:mousedown={handleMouseDown}
+        onmousedown={handleMouseDown}
         aria-labelledby="Windows divider"
         aria-label="Windows divider"
         class="divider"
         role="button"
         tabindex="0"
-    />
+    ></div>
     <div class="field_wrapper">
         {#if $isSettingsOpen}
             <SettingsModal formats={[formatLeft, formatRight]} />
         {/if}
-        <div class="codemirror-wrapper" bind:this={elementRight} />
+        <div class="codemirror-wrapper" bind:this={elementRight}></div>
     </div>
 </div>
 

@@ -1,32 +1,26 @@
-<script lang="ts">
-    import { page } from "$app/stores";
-    import type { OGCard, TwitterCard } from "~/types";
+---
+import { pagePath } from "~/utils/url";
 
-    export let title: string;
-    export let description: string;
+interface Props {
+    title: string;
+    description: string;
+    ogType?: "website" | "article";
+}
 
-    export let twitter: TwitterCard | undefined | null = null;
-    export let openGraph: OGCard;
-</script>
+const { title, description, ogType = "website" } = Astro.props;
+const url = new URL(pagePath(Astro.url), Astro.site);
+---
 
-<svelte:head>
-    <title>{title}</title>
-    <meta name="description" content={description} />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:description" content={twitter?.description || description} />
-    <meta name="twitter:title" content={twitter?.title || title} />
-    <meta name="twitter:image" content="" />
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={url} />
 
-    <meta property="og:locale" content="en_US" />
-    <meta property="og:type" content={openGraph.type} />
-    <meta property="og:url" content={$page.url.origin} />
-    <meta property="og:image" content="" />
-    <meta
-        property="og:title"
-        content={openGraph.description ? openGraph.description : description}
-    />
-    <meta
-        property="og:description"
-        content={openGraph.description ? openGraph.description : description}
-    />
-</svelte:head>
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+
+<meta property="og:locale" content="en_US" />
+<meta property="og:type" content={ogType} />
+<meta property="og:url" content={url} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />

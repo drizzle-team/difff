@@ -5,11 +5,11 @@ data that could be transferred between the server and the user's browser.
 
 Advantages of JSON Minify:
 
--   Faster Loading Times: A reduced [JSON](/#jsonAnchor) file size facilitates quicker data transfer, which can be transmitted more swiftly, resulting in faster page loading times.
+- Faster Loading Times: A reduced [JSON](/#jsonAnchor) file size facilitates quicker data transfer, which can be transmitted more swiftly, resulting in faster page loading times.
 
--   Bandwidth Savings: Beneficial for users with limited internet connections or those accessing websites via mobile devices.
+- Bandwidth Savings: Beneficial for users with limited internet connections or those accessing websites via mobile devices.
 
--   Improved Page Responsiveness: Faster parsing and processing times on the client side improve page responsiveness, ensuring prompt display of dynamic content
+- Improved Page Responsiveness: Faster parsing and processing times on the client side improve page responsiveness, ensuring prompt display of dynamic content
 
 ## When should JSON be minified?
 

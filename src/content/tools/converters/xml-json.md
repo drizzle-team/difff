@@ -7,9 +7,8 @@ according to the specified settings for indentation, type, and width.
 
 Input:
 
-<pre>
-
-<code class="language-xml hljs">{`<?xml version="1.0" encoding="UTF-8"?>
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
 <html style="color: green">
    <!-- this is a comment -->
    <head>
@@ -20,33 +19,26 @@ Input:
    <body>
       The indentation tries to be
       <em>
-         somewhat &quot;do whatI mean&quot;
+         somewhat "do whatI mean"
       </em>
       ... but might not match your style.
    </body>
-</html>`}
-</code>
-</pre>
+</html>
+```
 
 Output:
 
-<pre>
-
-<code class="language-json hljs">{`{
+```json
+{
     "html": {
         "style": "color: green",
         "head": {
             "title": "HTML Example"
         },
         "body": {
-            "_text": [
-                "The indentation tries to be",
-                "... but might not match your style."
-            ],
+            "_text": ["The indentation tries to be", "... but might not match your style."],
             "em": "somewhat \"do whatI mean\""
         }
     }
 }
-`}
-</code>
-</pre>
+```

@@ -11,17 +11,17 @@ JavaScript can have a negative effect on web page performance by slowing them do
 
 Pros:
 
--   Pages load time is reduced, and your website consumes less bandwidth.
--   The execution time of scripts is reduced.
--   Decreased server load resulting from fewer HTTP queries.
--   Minimized versions are difficult to understand and steal for reuse.
+- Pages load time is reduced, and your website consumes less bandwidth.
+- The execution time of scripts is reduced.
+- Decreased server load resulting from fewer HTTP queries.
+- Minimized versions are difficult to understand and steal for reuse.
 
 Cons:
 
--   Minification might cause interference with other complex scripts due to site-specific elements such as themes, plugins, and the server environment.
--   Minification should be utilized alongside other methods for enhancing performance.
--   Minifying may not result in substantial performance improvements on its own.
--   Debugging minified files become more difficult.
+- Minification might cause interference with other complex scripts due to site-specific elements such as themes, plugins, and the server environment.
+- Minification should be utilized alongside other methods for enhancing performance.
+- Minifying may not result in substantial performance improvements on its own.
+- Debugging minified files become more difficult.
 
 ## Differences Between JavaScript Minification, Uglification, and Compression
 

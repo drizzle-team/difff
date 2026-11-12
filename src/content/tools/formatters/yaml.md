@@ -6,13 +6,13 @@ where key is always a string.
 
 ### YAML Basic principles:
 
--   Each key is unique.
--   Comments are identified by (#).
--   Multi-lane comments unsupported.
--   Case and space sensitive.
--   Uses spaces instead of tabs.
--   Each level of indentation multiplies spaces num.
--   Support multiple documents in one file.
+- Each key is unique.
+- Comments are identified by (#).
+- Multi-lane comments unsupported.
+- Case and space sensitive.
+- Uses spaces instead of tabs.
+- Each level of indentation multiplies spaces num.
+- Support multiple documents in one file.
 
 ## YAML naming for data structures
 
@@ -22,11 +22,12 @@ hashes or dictionaries.<br/>
 placed on its own line & that start with an opening dash serve for arrays or tuples.<br/>
 **Scalar** — equivalent basic types boolean, date, integers, and floating.<br/> <br/>
 
-<pre><code class="language-yaml hljs">#Each documents starts with three dashes, ends with three dots.
+```yaml
+#Each documents starts with three dashes, ends with three dots.
 
 #string
 quoted: "YAML"
-singleQuoted: 'YAML'
+singleQuoted: "YAML"
 unquoted: YAML
 
 #number
@@ -37,31 +38,32 @@ hexadecimal: 0x1C7A
 
 #boolean
 null:
-  - ~
-  - NULL
-  - Null
-  - null
-  -    # empty also null
+    - ~
+    - NULL
+    - Null
+    - null
+    -  # empty also null
+
 
 #boolean
 boolean:
-  - TRUE
-  - True
-  - true
+    - TRUE
+    - True
+    - true
 
 #object
 human:
-  name: James
-  age: 51
-  children: 
-    - Bob
-    - Joana
+    name: James
+    age: 51
+    children:
+        - Bob
+        - Joana
 
 #array
 arrayName:
-  - true
-  - "string"
-  - 2024
+    - true
+    - "string"
+    - 2024
 
 #Redeclare types
 integer: !!float 23
@@ -69,7 +71,7 @@ bool: !!str false
 binaryNumber: !!int 0b101010
 hexadecimalNumber: !!int 0x1C7A
 stringExample: !!str "James"
-</code></pre>
+```
 
 ## How to use YAML formatter
 
@@ -77,9 +79,10 @@ Put [JSON](/#jsonAnchor), JavaScript object or an undecorated YAML. We'll valida
 
 ### Input:
 
-<pre><code class="language-yaml hljs">#JSON
+```yaml
+#JSON
 
-{`{
+{
     "someData": "trees",
     "randomNumber": 322,
     "nullValue": "~",
@@ -91,11 +94,11 @@ Put [JSON](/#jsonAnchor), JavaScript object or an undecorated YAML. We'll valida
         "val2": "value",
         "val3": true
     }
-}`}
+}
 
 #JS object
 
-{`{someData   : "trees", randomNumber: 322, nullValue : ~, moreValues : 21 22 23, array: [null,22, "true"], boolean : false,obj    :     {val1: "value", val2: "value",val3: true}}`}
+{someData   : "trees", randomNumber: 322, nullValue : ~, moreValues : 21 22 23, array: [null,22, "true"], boolean : false,obj    :     {val1: "value", val2: "value",val3: true}}
 
 #badly decorated YAML
 
@@ -105,23 +108,24 @@ nullValue    :  ~
 moreValues : 21 22    23
 array  :    [null,22, "true"]
 boolean: false
-obj : {`{val1: "value",   val2: "value"}`}
+obj : {val1: "value",   val2: "value"}
 val3: true
-</code></pre>
+```
 
 ### Output:
 
-<pre><code class="language-yaml hljs">someData: trees
+```yaml
+someData: trees
 randomNumber: 322
 nullValue: null
 moreValues: 21 22    23
 array:
-  - null
-  - 22
-  - 'true'
+    - null
+    - 22
+    - "true"
 boolean: false
 obj:
-  val1: value
-  val2: value
+    val1: value
+    val2: value
 val3: true
-</code></pre>
+```

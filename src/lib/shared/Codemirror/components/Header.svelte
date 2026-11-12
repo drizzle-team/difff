@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { browser } from "$app/environment";
-    import { onDestroy, onMount } from "svelte";
+    import { onMount } from "svelte";
     import SearchIcon from "~/lib/icons/SearchIcon.svelte";
     import UploadIcon from "~/lib/icons/UploadIcon.svelte";
     import MagicWand from "~/lib/icons/MagicWandIcon.svelte";
@@ -13,23 +12,27 @@
     import type { Formats, Tools, UploadEvent } from "~/types";
     import MinifyIcon from "~/lib/icons/MinifyIcon.svelte";
 
-    export let tool: Tools;
-    export let formats: Formats[];
-    export let handleFileChange: (event: UploadEvent) => void;
-    export let handleMainClick: () => void;
-    export let closeSearch: () => void;
+    interface Props {
+        tool: Tools;
+        formats: Formats[];
+        handleFileChange: (event: UploadEvent) => void;
+        handleMainClick: () => void;
+        closeSearch: () => void;
+    }
 
-    let showDropDown: boolean = false;
-    let fileInput: HTMLInputElement;
+    let { tool, formats, handleFileChange, handleMainClick, closeSearch }: Props = $props();
+
+    let showDropDown: boolean = $state(false);
+    let fileInput: HTMLInputElement | undefined = $state();
 
     const handleDropDownClick = () => {
         showDropDown = !showDropDown;
-        if (browser) document.body.addEventListener("click", handleMenuClose);
+        document.body.addEventListener("click", handleMenuClose);
     };
 
     const handleMenuClose = () => {
         showDropDown = false;
-        if (browser) document.body.removeEventListener("click", handleMenuClose);
+        document.body.removeEventListener("click", handleMenuClose);
     };
 
     const handleSearchMenuClick = () => {
@@ -68,11 +71,8 @@
     };
 
     onMount(() => {
-        if (browser) document.addEventListener("keydown", handleKeyDown);
-    });
-
-    onDestroy(() => {
-        if (browser) document.removeEventListener("keydown", handleKeyDown);
+        document.addEventListener("keydown", handleKeyDown);
+        return () => document.removeEventListener("keydown", handleKeyDown);
     });
 </script>
 
@@ -84,17 +84,17 @@
                 tabindex="0"
                 aria-labelledby="Dropdown"
                 aria-label="Dropdown"
-                on:click|stopPropagation
-                on:keydown={handleEnterClick}
+                onclick={(event) => event.stopPropagation()}
+                onkeydown={handleEnterClick}
                 class="dropdown_content"
             >
-                {#each dropDownOptions as options}
+                {#each dropDownOptions as options (options.title)}
                     <div class="dropdown_content_options">
                         <p class="content_label">
                             {options.title}
                         </p>
                         <ul>
-                            {#each options.values as option}
+                            {#each options.values as option (option.path)}
                                 <li class="dropdown_options">
                                     <a href={option.path} class="option_link">
                                         {option.name}
@@ -107,7 +107,10 @@
             </div>
         </div>
         <button
-            on:click|stopPropagation={handleDropDownClick}
+            onclick={(event) => {
+                event.stopPropagation();
+                handleDropDownClick();
+            }}
             title="Navigation"
             aria-labelledby="Navigation dropdown"
             aria-label="Navigation dropdown"
@@ -142,7 +145,7 @@
         <ChangeConvertors />
     </button> -->
     <button
-        on:click={handleMainClick}
+        onclick={handleMainClick}
         class="button text main-button"
         title={tool + " click"}
         aria-label={tool + "click"}
@@ -173,7 +176,7 @@
             aria-label="search"
             aria-labelledby="search"
             name="search"
-            on:click={handleSearchMenuClick}
+            onclick={handleSearchMenuClick}
         >
             <SearchIcon />
         </button>
@@ -183,13 +186,13 @@
             aria-label="upload"
             aria-labelledby="upload"
             name="upload"
-            on:click={handleFileUpload}
+            onclick={handleFileUpload}
         >
             <input
                 type="file"
                 class="file-input"
                 bind:this={fileInput}
-                on:change|preventDefault={handleFileChange}
+                onchange={handleFileChange}
             />
             <UploadIcon />
         </button>
@@ -199,7 +202,7 @@
             aria-label="settings"
             aria-labelledby="settings"
             name="settings"
-            on:click={openSettings}
+            onclick={openSettings}
         >
             <SettingsIcon />
         </button>

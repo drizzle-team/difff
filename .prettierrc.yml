@@ -1,4 +1,3 @@
----
 useTabs: false
 singleQuote: false
 trailingComma: "none"
@@ -7,8 +6,12 @@ tabWidth: 4
 printWidth: 100
 endOfLine: "lf"
 plugins:
+    - prettier-plugin-astro
     - prettier-plugin-svelte
 overrides:
     - files: "*.svelte"
       options:
           parser: svelte
+    - files: "*.astro"
+      options:
+          parser: astro

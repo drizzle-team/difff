@@ -1,8 +1,10 @@
-import axios from "axios";
 import * as yamlConvert from "js-yaml";
 import { isURL } from "~/utils/helper";
 import { js2xml, xml2json } from "xml-js";
 import type { Formats, PossibleJSON } from "~/types";
+
+export type ConversionName =
+    "jsonToXml" | "xmlToJson" | "jsonToYaml" | "yamlToJson" | "yamlToXml" | "xmlToYaml";
 
 export class Converter {
     private sanitizeTags = (xmlString: string) => {
@@ -94,7 +96,7 @@ export class Converter {
             const xml = js2xml(JSON.parse(json), { compact: true });
             const sanitizedXML = this.sanitizeTags(xml);
             return `<?xml version="1.0" encoding="UTF-8"?><root>${sanitizedXML}</root>`;
-        } catch (err) {
+        } catch {
             return "";
         }
     };
@@ -103,7 +105,7 @@ export class Converter {
         try {
             const json = xml2json(xml, { compact: true, trim: true, ignoreComment: true });
             return this.unNestJSON(json);
-        } catch (err) {
+        } catch {
             return "";
         }
     };
@@ -111,9 +113,15 @@ export class Converter {
     public urlToJson = async (userInput: string) => {
         if (!isURL(userInput)) return userInput;
         try {
-            const response = await axios.get(userInput);
-            return JSON.stringify(response.data);
-        } catch (err) {
+            const response = await fetch(userInput);
+            if (!response.ok) return userInput;
+            const text = await response.text();
+            try {
+                return JSON.stringify(JSON.parse(text));
+            } catch {
+                return JSON.stringify(text);
+            }
+        } catch {
             return userInput;
         }
     };
@@ -122,7 +130,7 @@ export class Converter {
         try {
             const yaml = yamlConvert.load(json);
             return JSON.stringify(yaml);
-        } catch (err) {
+        } catch {
             return "";
         }
     };
@@ -133,7 +141,7 @@ export class Converter {
             const json = JSON.stringify(loadedYaml, null);
 
             return json;
-        } catch (err) {
+        } catch {
             return "";
         }
     };
@@ -144,7 +152,7 @@ export class Converter {
             const json = JSON.stringify(loadedYaml, null);
             const xml = this.jsonToXml(json);
             return xml;
-        } catch (err) {
+        } catch {
             return "";
         }
     };
@@ -154,7 +162,7 @@ export class Converter {
             const json = this.xmlToJson(xml);
             const yaml = yamlConvert.load(json);
             return JSON.stringify(yaml);
-        } catch (err) {
+        } catch {
             return "";
         }
     };

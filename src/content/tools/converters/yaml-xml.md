@@ -7,34 +7,31 @@ right read-only field, formatted as [XML](/formatter/xml#xmlAnchor), will alread
 
 Input:
 
-<pre>
-
-<code class="language-yaml hljs">{`book:
+```yaml
+book:
     - cate     gory: children
       l"a"ng: en
       title: Harry Potter
       author: J K. Rowling
-      ye:r: '2005'
-      price: '29.99'
+      ye:r: "2005"
+      price: "29.99"
     - c@tegory: web
       lang: en
       title: XQuery Kick Start
       author:
-        - James McGovern
-        - Per Bothner
-        - Kurt Cagle
-        - James Linn
-        - Vaidyanathan Nagarajan
-      _year: '2003'
-      price: '49.99'`}
-</code>
-</pre>
+          - James McGovern
+          - Per Bothner
+          - Kurt Cagle
+          - James Linn
+          - Vaidyanathan Nagarajan
+      _year: "2003"
+      price: "49.99"
+```
 
 Output:
 
-<pre>
-
-<code class="language-xml hljs">{`<?xml version="1.0" encoding="UTF-8"?>
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
 <root>
    <book>
       <category>
@@ -88,6 +85,5 @@ Output:
          49.99
       </price>
    </book>
-</root>`}
-</code>
-</pre>
+</root>
+```

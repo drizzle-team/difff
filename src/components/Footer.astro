@@ -1,65 +1,37 @@
-<script lang="ts">
-    import { page } from "$app/stores";
-    import type { ToolsRoute } from "~/types";
-    import { toolsRoutes } from "~/routes/routes";
-    import NavLink from "~/lib/shared/LinkCard.svelte";
+---
+import { toolsRoutes } from "~/data/routes";
+import LinkCard from "~/components/LinkCard.astro";
+import { pagePath } from "~/utils/url";
 
-    let routesToShow: ToolsRoute[];
-    $: routesToShow = toolsRoutes.filter((route) => route.path !== $page.url.pathname);
-</script>
+const groups = [
+    { group: "Formatter", title: "Formatters" },
+    { group: "Minifier", title: "Minifiers" },
+    { group: "Converter", title: "Converters" },
+    { group: "Blog", title: "Blog" }
+];
+const routesToShow = toolsRoutes.filter((route) => route.path !== pagePath(Astro.url));
+---
 
 <footer class="footer">
     <div class="container">
         <h2 class="footer-title">Other tools</h2>
         <div class="lists-wrapper">
-            <div class="list_column">
-                <h3>Formatters</h3>
-                <ul class="list_column_link-group">
-                    {#each routesToShow.filter((element) => element.group === "Formatter") as route}
-                        <li>
-                            <a href={route.path}>
-                                <NavLink name={route.name} />
-                            </a>
-                        </li>
-                    {/each}
-                </ul>
-            </div>
-            <div class="list_column">
-                <h3>Minifiers</h3>
-                <ul class="list_column_link-group">
-                    {#each routesToShow.filter((element) => element.group === "Minifier") as route}
-                        <li>
-                            <a href={route.path}>
-                                <NavLink name={route.name} />
-                            </a>
-                        </li>
-                    {/each}
-                </ul>
-            </div>
-            <div class="list_column">
-                <h3>Converters</h3>
-                <ul class="list_column_link-group">
-                    {#each routesToShow.filter((element) => element.group === "Converter") as route}
-                        <li>
-                            <a href={route.path}>
-                                <NavLink name={route.name} />
-                            </a>
-                        </li>
-                    {/each}
-                </ul>
-            </div>
-            <div class="list_column">
-                <h3>Blog</h3>
-                <ul class="list_column_link-group">
-                    {#each routesToShow.filter((element) => element.group === "Blog") as route}
-                        <li>
-                            <a href={route.path}>
-                                <NavLink name={route.name} />
-                            </a>
-                        </li>
-                    {/each}
-                </ul>
-            </div>
+            {groups.map(({ group, title }) => (
+                <div class="list_column">
+                    <h3>{title}</h3>
+                    <ul class="list_column_link-group">
+                        {routesToShow
+                            .filter((route) => route.group === group)
+                            .map((route) => (
+                                <li>
+                                    <a href={route.path}>
+                                        <LinkCard name={route.name} />
+                                    </a>
+                                </li>
+                            ))}
+                    </ul>
+                </div>
+            ))}
         </div>
     </div>
 </footer>

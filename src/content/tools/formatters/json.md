@@ -4,12 +4,12 @@
 
 ### Syntax rules:
 
--   Key/value pairs structure.
--   Pairs separated by commas.
--   Objects are stored within curly braces.
--   Square brackets hold arrays.
--   The keys have a string type.
--   The values might be string, number, JSON object, array, boolean, or null.
+- Key/value pairs structure.
+- Pairs separated by commas.
+- Objects are stored within curly braces.
+- Square brackets hold arrays.
+- The keys have a string type.
+- The values might be string, number, JSON object, array, boolean, or null.
 
 ## Why JSON is so popular?
 
@@ -26,11 +26,11 @@ and increasing the parsing speed. Used a map data structure, the key-value pairs
 Developer use JSON because it requires to code less, and processes faster since deserialization isn’t required.
 **JSON Top use cases:**
 
--   API integration.
--   Generating a JSON object from user-generated data.
--   Transferring data between systems.
--   Configuring data for applications.
--   Simplifying complex data models.
+- API integration.
+- Generating a JSON object from user-generated data.
+- Transferring data between systems.
+- Configuring data for applications.
+- Simplifying complex data models.
 
 ## What is JSON API?
 
@@ -42,9 +42,9 @@ implementations the freedom to adopt whatever format they prefer.
 
 ### Benefits of JSON API:
 
--   Caching: caching boosts the speed and performance of a website. Through caching, users can retrieve searched information very quickly.
--   Has Optimization Features: pagination and sorting. Pagination divides the responses into groups containing different content. Sorting specifies the direction for each key.
--   Compound Documents: send both related and main resources at the same time and allows users to include additional resources in the initial request. Reduces loading speed by
-    minimizing the number of HTTP requests.
--   Sparse Fieldsets: simple method for accessing data. Requesting and retrieving data from specific fields.
--   Freedom of Selection: allowing users choose data, helps avoid storing unnecessary large datasets.
+- Caching: caching boosts the speed and performance of a website. Through caching, users can retrieve searched information very quickly.
+- Has Optimization Features: pagination and sorting. Pagination divides the responses into groups containing different content. Sorting specifies the direction for each key.
+- Compound Documents: send both related and main resources at the same time and allows users to include additional resources in the initial request. Reduces loading speed by
+  minimizing the number of HTTP requests.
+- Sparse Fieldsets: simple method for accessing data. Requesting and retrieving data from specific fields.
+- Freedom of Selection: allowing users choose data, helps avoid storing unnecessary large datasets.

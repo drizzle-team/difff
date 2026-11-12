@@ -2,24 +2,20 @@
 
 ### XML element names rules:
 
--   Element name must start with a letter, an underscore `_` , or a colon `:` .
--   After the initial character, the name can contain letters, digits, hyphens `-` , underscores `_` , colons `:` , and periods `.`.
--   Characters cannot be used in element names `<`, `>`, `&`, `"`, and `'`.
--   Cannot contain whitespace characters (spaces, tabs, etc.).
+- Element name must start with a letter, an underscore `_` , or a colon `:` .
+- After the initial character, the name can contain letters, digits, hyphens `-` , underscores `_` , colons `:` , and periods `.`.
+- Characters cannot be used in element names `<`, `>`, `&`, `"`, and `'`.
+- Cannot contain whitespace characters (spaces, tabs, etc.).
 
 If [JSON](/#jsonAnchor) is valid, after conversion, we add a declaration with version 1.0 and encoding UTF-8, wrap everything in a root tag. All whitespace is removed, and invalid
 characters will be replaced by an underscore. [XML](/formatter/xml#xmlAnchor) will be formatted with the indentation specified in the settings.
 
 Input:
 
-<pre>
-
-<code class="language-json hljs">{`{
+```json
+{
     "Aidan Gillen": {
-        "array  s": [
-            "Game of Thrones",
-            "The Wire"
-        ],
+        "array  s": ["Game of Thrones", "The Wire"],
         "2string": "some string",
         "int": "2",
         "otherint": 4,
@@ -31,23 +27,15 @@ Input:
     },
     "Bul@ks!": {},
     "Annie Fitzgerald": [],
-    "Anwan Glover": [
-        "Treme",
-        "The Wire"
-    ],
-    "Alexander Skarsg?rd": [
-        "Generation Kill",
-        "True Blood"
-    ]
-}`}
-</code>
-</pre>
+    "Anwan Glover": ["Treme", "The Wire"],
+    "Alexander Skarsg?rd": ["Generation Kill", "True Blood"]
+}
+```
 
 Output:
 
-<pre>
-
-<code class="language-xml hljs">{`<?xml version="1.0" encoding="UTF-8"?>
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
 <root>
    <AidanGillen>
       <arrays>
@@ -88,6 +76,5 @@ Output:
    <AlexanderSkarsg_rd>
       True Blood
    </AlexanderSkarsg_rd>
-</root>`}
-</code>
-</pre>
+</root>
+```

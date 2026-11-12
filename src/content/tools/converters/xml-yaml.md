@@ -7,16 +7,15 @@ be formatted with the indentation specified in the settings and displayed in a r
 
 Input:
 
-<pre>
-
-<code class="language-xml hljs">{`<?xml version="1.0" encoding="UTF-8"?>
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
   <root root="true">
    <profile>
     <!-- self closed -->
    </profile>
    <Garage>
       <cars>
-        BMW 
+        BMW
       </cars>
       <cars>
         Mercedes
@@ -29,30 +28,26 @@ Input:
       true
    </original_paint>
    <color wrapp:num="3785">blue</color>
-</root>`}
-</code>
-</pre>
+</root>
+```
 
 Output:
 
-<pre>
-
-<code class="language-yaml hljs">{`_declaration:
-  _attributes:
-    version: '1.0'
-    encoding: UTF-8
+```yaml
+_declaration:
+    _attributes:
+        version: "1.0"
+        encoding: UTF-8
 root:
-  root: 'true'
-  profile: {}
-  Garage:
-    cars:
-      - BMW
-      - Mercedes
-    bike: Kawasaki H2R
-  original_paint: 'true'
-  color:
-    wrapp:num: '3785'
-    _text: blue
-`}
-</code>
-</pre>
+    root: "true"
+    profile: {}
+    Garage:
+        cars:
+            - BMW
+            - Mercedes
+        bike: Kawasaki H2R
+    original_paint: "true"
+    color:
+        wrapp:num: "3785"
+        _text: blue
+```
