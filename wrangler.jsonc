@@ -1,0 +1,19 @@
+{
+    "$schema": "./node_modules/wrangler/config-schema.json",
+    // Assets-only Worker: no script, Cloudflare serves the prebuilt Astro output directly.
+    "name": "difff",
+    // Cloudflare account ID is not a secret; hardcoding it means CI only needs CLOUDFLARE_API_TOKEN.
+    "account_id": "32ec5a45e61bb65267a5e522f2d1425d",
+    "compatibility_date": "2026-11-12",
+    "assets": {
+        "directory": "./dist",
+        // Serves /formatter/yaml from formatter/yaml.html (matches build.format: "file").
+        "html_handling": "auto-trailing-slash",
+        "not_found_handling": "404-page"
+    },
+    "observability": {
+        "enabled": true
+    }
+    // To serve difff.app from this Worker, detach the domain from the old Pages project, then add:
+    // "routes": [{ "pattern": "difff.app", "custom_domain": true }]
+}

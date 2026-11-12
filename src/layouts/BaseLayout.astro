@@ -1,0 +1,42 @@
+---
+import "~/styles/index.css";
+import Head from "~/components/Head.astro";
+import Footer from "~/components/Footer.astro";
+
+interface Props {
+    title: string;
+    description: string;
+    ogType?: "website" | "article";
+}
+
+const { title, description, ogType } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.png" />
+        <Head title={title} description={description} ogType={ogType} />
+    </head>
+    <body>
+        <div class="page">
+            <slot />
+            <Footer />
+        </div>
+        <script>
+            import { configure } from "onedollarstats";
+            configure();
+        </script>
+    </body>
+</html>
+
+<style>
+    .page {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+    }
+</style>

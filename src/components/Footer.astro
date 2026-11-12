@@ -1,0 +1,85 @@
+---
+import { toolsRoutes } from "~/data/routes";
+import LinkCard from "~/components/LinkCard.astro";
+import { pagePath } from "~/utils/url";
+
+const groups = [
+    { group: "Formatter", title: "Formatters" },
+    { group: "Minifier", title: "Minifiers" },
+    { group: "Converter", title: "Converters" },
+    { group: "Blog", title: "Blog" }
+];
+const routesToShow = toolsRoutes.filter((route) => route.path !== pagePath(Astro.url));
+---
+
+<footer class="footer">
+    <div class="container">
+        <h2 class="footer-title">Other tools</h2>
+        <div class="lists-wrapper">
+            {groups.map(({ group, title }) => (
+                <div class="list_column">
+                    <h3>{title}</h3>
+                    <ul class="list_column_link-group">
+                        {routesToShow
+                            .filter((route) => route.group === group)
+                            .map((route) => (
+                                <li>
+                                    <a href={route.path}>
+                                        <LinkCard name={route.name} />
+                                    </a>
+                                </li>
+                            ))}
+                    </ul>
+                </div>
+            ))}
+        </div>
+    </div>
+</footer>
+
+<style lang="scss">
+    h3 {
+        text-align: center;
+        margin: 0 0 12px 0;
+    }
+
+    .footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 1024px;
+        width: 100%;
+        margin: 38px auto 0;
+        padding: 0 0 32px;
+    }
+
+    .lists-wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+    }
+
+    .list_column {
+        display: flex;
+        flex-direction: column;
+        margin: 0 0 16px 0;
+        @media (min-width: 768px) {
+            margin: 0;
+        }
+    }
+
+    .list_column_link-group {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+        justify-content: flex-start;
+        margin: 0 0 24px 0;
+        gap: 12px;
+        list-style: none;
+        list-style-image: none;
+    }
+
+    .footer-title {
+        text-align: center;
+        margin: 0 auto 18px;
+    }
+</style>

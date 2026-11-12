@@ -1,9 +1,7 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import Formatter from "~/utils/Formatter";
     import Converter from "~/utils/Converter";
-    import { browser } from "$app/environment";
-    import { onDestroy, onMount } from "svelte";
-    import LocalStorage from "~/storage/LocalStorage";
     import Editor from "~/lib/shared/Codemirror/Editor";
     import Header from "~/lib/shared/Codemirror/components/Header.svelte";
     import Footer from "~/lib/shared/Codemirror/components/Footer.svelte";
@@ -11,130 +9,98 @@
     import SearchField from "~/lib/shared/Codemirror/components/SearchField.svelte";
     import SettingsModal from "~/lib/shared/Codemirror/components/SettingsModal.svelte";
     import { errorMessage, showError, storageSettings } from "~/storage/store";
-    import type { LocaleStorageResponce } from "~/storage/types";
     import type { CursorPosition, Formats, SearchData, Tools, UploadEvent } from "~/types";
 
-    export let format: Formats;
-    export let placeholder: string;
-    export let label: string;
-    export let tool: Tools;
+    interface Props {
+        format: Formats;
+        placeholder: string;
+        label: string;
+        tool: Tools;
+    }
 
-    let codemirror: Editor;
-    let value: string = "";
+    let { format, placeholder, label, tool }: Props = $props();
+
+    let codemirror: Editor | undefined = $state();
     let element: HTMLDivElement;
-    let isDownloadClicked: boolean = false;
-    let isCopyClicked: boolean = false;
-    let storage: LocaleStorageResponce;
-    let cursorPosition: CursorPosition = { line: 0, col: 0 };
-    let useTabs: boolean;
-    let indentationLevel: number;
-    let performSearch: (searchData: SearchData) => void;
-    let nextSearchValue: () => void;
-    let previousSearchValue: () => void;
-    let selectAllMatches: () => void;
-    let replaceNext: () => void;
-    let replaceAll: () => void;
-    let closeSearch: () => void;
+    let value = $state("");
+    let isDownloadClicked = $state(false);
+    let isCopyClicked = $state(false);
+    let cursorPosition: CursorPosition = $state({ line: 0, col: 0 });
 
+    const useTabs = $derived($storageSettings[format].tab || false);
+    const indentationLevel = $derived($storageSettings[format].spaces);
     const formatter = new Formatter(format);
 
-    $: useTabs = $storageSettings[format].tab || false;
-    $: indentationLevel = $storageSettings[format].spaces;
-    $: {
+    $effect(() => {
         if (value === "") {
             $showError = false;
             $errorMessage = "";
         }
-    }
+    });
+
+    const formatAndSet = async (input: string) => {
+        const formattedData = await formatter.formatInput(input, useTabs, indentationLevel);
+        codemirror?.setFormattingResult(formattedData);
+    };
 
     const handleMainClick = async () => {
-        if (tool === "formatter") {
-            const formattedData = await formatter.formatInput(value, useTabs, indentationLevel);
-            codemirror.setFormattingResult(formattedData);
-        }
+        if (tool === "formatter") await formatAndSet(value);
         if (tool === "minifier") {
             const minify = Converter.minify(format);
-            if (minify) {
-                const minifiedData = minify(value);
-                codemirror.updateCodemirrorValue(minifiedData);
-            }
+            if (minify) codemirror?.updateCodemirrorValue(minify(value));
         }
     };
 
     const handlePaste = async () => {
-        const input = await Converter.urlToJson(value);
-        const formattedData = await formatter.formatInput(input, useTabs, indentationLevel);
-        codemirror.setFormattingResult(formattedData);
+        await formatAndSet(await Converter.urlToJson(value));
+    };
+
+    const readFile = (file: File, delay = 0) => {
+        const reader = new FileReader();
+        reader.onload = async (e: ProgressEvent<FileReader>) => {
+            const data = await Converter.urlToJson(e.target?.result as string);
+            codemirror?.updateCodemirrorValue(data);
+            setTimeout(() => formatAndSet(data), delay);
+        };
+        reader.readAsText(file);
     };
 
     const handleDrop = (event: DragEvent) => {
         event.preventDefault();
-        if (event.dataTransfer && event.dataTransfer.files.length > 0) {
-            const oldValue = value;
-            const file = event.dataTransfer.files[0];
-            const reader = new FileReader();
-            reader.onload = async (e: ProgressEvent<FileReader>) => {
-                let droppedData = e.target?.result as string;
-                droppedData = await Converter.urlToJson(droppedData);
-                codemirror.updateCodemirrorValue(droppedData);
-                const formattedData = await formatter.formatInput(
-                    droppedData,
-                    useTabs,
-                    indentationLevel
-                );
-                codemirror.setFormattingResult(formattedData);
-            };
-            if (value !== oldValue) codemirror.scrollToTop();
-            reader.readAsText(file);
-        }
+        const file = event.dataTransfer?.files[0];
+        if (file) readFile(file);
     };
 
     const handleFileChange = (event: UploadEvent) => {
         event.preventDefault();
-        if (
-            event.currentTarget &&
-            event.currentTarget.files &&
-            event.currentTarget.files.length > 0
-        ) {
-            const file = event.currentTarget.files[0];
-            const reader = new FileReader();
-            reader.onload = async (e: ProgressEvent<FileReader>) => {
-                let droppedData = e.target?.result as string;
-                droppedData = await Converter.urlToJson(droppedData);
-                codemirror.updateCodemirrorValue(droppedData);
-                setTimeout(async () => {
-                    const formattedData = await formatter.formatInput(
-                        droppedData,
-                        useTabs,
-                        indentationLevel
-                    );
-                    codemirror.setFormattingResult(formattedData);
-                }, 10); // REDO
-            };
-            reader.readAsText(file);
-        }
+        const file = event.currentTarget.files?.[0];
+        if (file) readFile(file, 10);
     };
 
     const handleCopyClick = async () => {
         isCopyClicked = true;
-        setTimeout(() => {
-            isCopyClicked = false;
-        }, 1000);
+        setTimeout(() => (isCopyClicked = false), 1000);
         await navigator.clipboard.writeText(value);
     };
 
     const handleDownloadClick = () => {
         isDownloadClicked = true;
-        setTimeout(() => {
-            isDownloadClicked = false;
-        }, 1000);
-        codemirror.downloadFile(value);
+        setTimeout(() => (isDownloadClicked = false), 1000);
+        codemirror?.downloadFile(value);
     };
 
+    const performSearch = (searchData: SearchData) => codemirror?.performSearch(searchData);
+    const nextSearchValue = () => codemirror?.nextSearchValue();
+    const previousSearchValue = () => codemirror?.previousSearchValue();
+    const selectAllMatches = () => codemirror?.selectAllMatches();
+    const replaceNext = () => codemirror?.replace();
+    const replaceAll = () => codemirror?.replaceAll();
+    const closeSearch = () => codemirror?.closeSearch();
+
     onMount(() => {
-        codemirror = new Editor({
+        const editor = new Editor({
             element,
-            outerValueChange: (newValue: string, newCursorPos) => {
+            outerValueChange: (newValue, newCursorPos) => {
                 value = newValue;
                 cursorPosition = newCursorPos;
             },
@@ -143,41 +109,24 @@
             format,
             readOnly: false
         });
+        codemirror = editor;
 
-        performSearch = codemirror.performSearch;
-        nextSearchValue = codemirror.nextSearchValue;
-        previousSearchValue = codemirror.previousSearchValue;
-        selectAllMatches = codemirror.selectAllMatches;
-        replaceNext = codemirror.replace;
-        replaceAll = codemirror.replaceAll;
-        closeSearch = codemirror.closeSearch;
+        document.addEventListener("paste", handlePaste);
+        document.addEventListener("drop", handleDrop);
+        const cmContent = element.querySelector(".cm-content");
+        cmContent?.setAttribute("aria-label", `${format.toUpperCase()} input`);
 
-        storage = LocalStorage.get(format);
-        useTabs = storage?.tab || useTabs;
-        indentationLevel = storage?.spaces || indentationLevel;
-        if (browser) {
-            document.addEventListener("paste", handlePaste);
-            document.addEventListener("drop", handleDrop);
-            const cmDiv = document.getElementsByClassName("cm-content");
-            if (cmDiv.length > 0) {
-                cmDiv[0].setAttribute("aria-label", `${format.toUpperCase()} input`);
-                cmDiv[0].setAttribute("aria-labelledby", `${format.toUpperCase()} input`);
-            }
-        }
-    });
-
-    onDestroy(() => {
-        codemirror?.destroy();
-        if (browser) {
+        return () => {
+            editor.destroy();
             document.removeEventListener("paste", handlePaste);
             document.removeEventListener("drop", handleDrop);
-        }
+        };
     });
 </script>
 
 <Header formats={[format]} {handleFileChange} {tool} {handleMainClick} {closeSearch} />
 <div class="field_wrapper">
-    <div class="codemirror-wrapper" bind:this={element} />
+    <div class="codemirror-wrapper" bind:this={element}></div>
     <SearchField
         {performSearch}
         {nextSearchValue}
@@ -191,8 +140,8 @@
     <ErrorModal />
 </div>
 <Footer
-    bind:useTabs
-    bind:indentationLevel
+    {useTabs}
+    {indentationLevel}
     {handleCopyClick}
     {handleDownloadClick}
     {isCopyClicked}

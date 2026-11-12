@@ -1,8 +1,7 @@
-import { XMLValidator, type ValidationError } from "fast-xml-parser";
+import { validateXML, type XMLValidationError } from "~/utils/helper";
 import * as yaml from "js-yaml";
-import * as prettier from "prettier/standalone";
 import { prettierJSSettings, prettierJSONSettings, prettierSQLSettings } from "~/utils/settings";
-import { format as formatSQL } from "sql-formatter";
+import { formatSQL, formatWithPrettier } from "~/utils/lazy";
 import type { Formats } from "~/types";
 
 class Validator {
@@ -20,18 +19,10 @@ class Validator {
         }
     };
 
-    private validateXML = (input: string): true | ValidationError => {
-        const validationResult = XMLValidator.validate(input);
-        if (validationResult === true) {
-            return validationResult;
-        } else {
-            return validationResult;
-        }
-    };
+    private validateXML = (input: string): true | XMLValidationError => validateXML(input);
 
-    private validateJSON = (input: string): true | unknown => {
-        return prettier
-            .format(input, prettierJSONSettings)
+    private validateJSON = (input: string): Promise<true | unknown> => {
+        return formatWithPrettier(input, prettierJSONSettings)
             .then(() => {
                 return true;
             })
@@ -40,9 +31,8 @@ class Validator {
             });
     };
 
-    private validateJS = (input: string): true | unknown => {
-        return prettier
-            .format(input, prettierJSSettings)
+    private validateJS = (input: string): Promise<true | unknown> => {
+        return formatWithPrettier(input, prettierJSSettings)
             .then(() => {
                 return true;
             })
@@ -51,9 +41,9 @@ class Validator {
             });
     };
 
-    private validateSQL = (input: string): true | unknown => {
+    private validateSQL = async (input: string): Promise<true | unknown> => {
         try {
-            formatSQL(input, prettierSQLSettings);
+            await formatSQL(input, prettierSQLSettings);
             return true;
         } catch (err) {
             return err;

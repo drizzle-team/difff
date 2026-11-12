@@ -26,6 +26,7 @@ import Highlight, {
 } from "~/lib/shared/Codemirror/Highlight";
 import { errorMessage, isSearchOpen, showError } from "~/storage/store";
 import Validator from "~/utils/Validator";
+import { mount } from "svelte";
 import { javascript } from "@codemirror/lang-javascript";
 import CloseIcon from "~/lib/icons/gutter/DropDownClosed.svelte";
 import OpenIcon from "~/lib/icons/gutter/DropDownOpen.svelte";
@@ -83,8 +84,7 @@ class Codemirror {
                 icon.style.justifyContent = "center";
                 icon.style.minWidth = "18px";
                 icon.style.minHeight = "18px";
-                if (open) new OpenIcon({ target: icon });
-                if (!open) new CloseIcon({ target: icon });
+                mount(open ? OpenIcon : CloseIcon, { target: icon });
                 return icon;
             }
         });

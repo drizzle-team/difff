@@ -3,7 +3,7 @@
     import { errorMessage, showError } from "~/storage/store";
     import { onMount } from "svelte";
 
-    let showErrorMessage = true;
+    let showErrorMessage = $state(true);
 
     const handleShowErrorClick = () => {
         showErrorMessage = !showErrorMessage;
@@ -29,8 +29,8 @@
         tabindex="0"
         aria-labelledby="showErrorMessage"
         aria-label="showErrorMessage"
-        on:click={handleShowErrorClick}
-        on:keydown={handleEnterClick}
+        onclick={handleShowErrorClick}
+        onkeydown={handleEnterClick}
         class="modal"
         class:gap={showErrorMessage}
     >
@@ -39,7 +39,7 @@
                 {$errorMessage === "" ? "Invalid format" : $errorMessage}
             {/if}
         </p>
-        <AlertIcon color={"#eaeaea"} />
+        <AlertIcon color="#eaeaea" />
     </div>
 {/if}
 
