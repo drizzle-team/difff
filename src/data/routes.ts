@@ -37,6 +37,11 @@ export const toolsRoutes: ToolsRoute[] = [
         path: "/minifier/js"
     },
     {
+        name: "Markdown",
+        group: "Viewer",
+        path: "/markdown-viewer"
+    },
+    {
         name: "Change & Decision log",
         group: "Blog",
         path: "/changelog"

@@ -48,3 +48,6 @@ implementations the freedom to adopt whatever format they prefer.
   minimizing the number of HTTP requests.
 - Sparse Fieldsets: simple method for accessing data. Requesting and retrieving data from specific fields.
 - Freedom of Selection: allowing users choose data, helps avoid storing unnecessary large datasets.
+
+Documenting your API in a README? Preview it with our [Markdown viewer](/markdown-viewer), which supports
+syntax-highlighted JSON and Mermaid diagrams.

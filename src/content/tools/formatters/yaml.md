@@ -72,6 +72,9 @@ hexadecimalNumber: !!int 0x1C7A
 stringExample: !!str "James"
 ```
 
+YAML front matter is common in Markdown documentation. To preview `.md` files with highlighted code
+and Mermaid diagrams, use the [Markdown viewer](/markdown-viewer).
+
 ## How to use YAML formatter
 
 Put [JSON](/#jsonAnchor), JavaScript object or an undecorated YAML. We'll validate input and format it.
