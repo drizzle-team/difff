@@ -808,10 +808,21 @@ export const greet = (user: User): string => \`Hello, \${user.name}!\`;
         overscroll-behavior: contain;
     }
 
-    /* Rendered Markdown. Wide column so tables and code fit; text stays readable at 16px. */
+    /*
+     * Rendered Markdown. Text sits in a readable center column ("content"); tables, code
+     * blocks and diagrams may grow into the "full" track up to the screen width. When they
+     * are narrower than the text column they line up with it exactly.
+     */
     .markdown-body {
-        max-width: 1280px;
-        margin: 0 auto;
+        /* Same text measure as the Drizzle docs: 1440 - 2×264 sidebars - 2×48 padding. */
+        --column: 816px;
+
+        display: grid;
+        grid-template-columns:
+            [full-start] minmax(0, 1fr)
+            [content-start] minmax(0, var(--column))
+            [content-end] minmax(0, 1fr)
+            [full-end];
         padding: 24px 16px 64px;
         font-family: var(--font);
         font-size: 16px;
@@ -824,6 +835,18 @@ export const greet = (user: User): string => \`Hello, \${user.name}!\`;
 
         & :global(*) {
             line-height: 1.5;
+        }
+
+        & > :global(*) {
+            grid-column: content;
+            min-width: 0;
+        }
+        & > :global(:is(pre, .table-wrap, .mermaid-diagram)) {
+            grid-column: full;
+            justify-self: center;
+            width: max-content;
+            min-width: min(var(--column), 100%);
+            max-width: 100%;
         }
 
         & > :global(:first-child) {
@@ -983,16 +1006,16 @@ export const greet = (user: User): string => \`Hello, \${user.name}!\`;
             }
         }
 
-        /* Tables: underline-only rows like Drizzle; as wide as the content needs, scroll beyond. */
-        & :global(table) {
-            display: block;
-            width: max-content;
-            max-width: 100%;
+        /* Tables: underline-only rows like Drizzle. The wrapper scrolls past the screen width. */
+        & :global(.table-wrap) {
             margin: 4px 0 8px;
             overflow-x: auto;
+            scrollbar-color: #4d4d4d transparent;
+        }
+        & :global(table) {
+            width: 100%;
             border-collapse: collapse;
             font-size: 14px;
-            scrollbar-color: #4d4d4d transparent;
         }
         & :global(th) {
             padding: 8px 12px;

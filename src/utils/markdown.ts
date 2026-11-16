@@ -25,8 +25,33 @@ export const renderDocument = async (
     const root = document.createElement("div");
     root.innerHTML = await renderMarkdown(source);
     if (!isCurrent()) return null;
+    wrapTables(root);
     await Promise.all([highlightCode(root), renderMermaid(root, isCurrent)]);
     return isCurrent() ? root : null;
+};
+
+/** Tables scroll inside a wrapper, so the table itself can stretch to the wrapper's width. */
+const wrapTables = (root: HTMLElement) => {
+    for (const table of root.querySelectorAll("table")) {
+        const wrap = document.createElement("div");
+        wrap.className = "table-wrap";
+        table.replaceWith(wrap);
+        wrap.append(table);
+    }
+};
+
+/**
+ * Mermaid emits `width="100%"` plus an inline `max-width: <natural>px`, which gives the SVG no
+ * intrinsic width (a max-content container collapses it). Use the natural width instead and
+ * let CSS scale it down on narrow screens.
+ */
+const sizeDiagram = (figure: HTMLElement) => {
+    const svg = figure.querySelector("svg");
+    const naturalWidth = svg ? Number.parseFloat(svg.style.maxWidth) : Number.NaN;
+    if (!svg || !Number.isFinite(naturalWidth)) return;
+    svg.setAttribute("width", String(naturalWidth));
+    svg.removeAttribute("height");
+    svg.style.maxWidth = "100%";
 };
 
 const languageOf = (code: Element) =>
@@ -96,6 +121,7 @@ const renderMermaid = async (root: HTMLElement, isCurrent: () => boolean) => {
         try {
             const { svg } = await mermaid.render(`mermaid-${++diagramId}`, code.textContent ?? "");
             figure.innerHTML = svg;
+            sizeDiagram(figure);
         } catch (error) {
             figure.classList.add("mermaid-error");
             const message = document.createElement("p");
