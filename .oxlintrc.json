@@ -9,5 +9,11 @@
         "browser": true,
         "node": true
     },
-    "ignorePatterns": ["dist/", ".astro/", ".wrangler/", "node_modules/"]
+    "ignorePatterns": [
+        "dist/",
+        ".astro/",
+        ".wrangler/",
+        "node_modules/",
+        "worker/worker-configuration.d.ts"
+    ]
 }

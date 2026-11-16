@@ -9,5 +9,12 @@
     "endOfLine": "lf",
     "svelte": true,
     "astro": true,
-    "ignorePatterns": ["pnpm-lock.yaml", "pnpm-workspace.yaml", "dist", ".astro", ".wrangler"]
+    "ignorePatterns": [
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "dist",
+        ".astro",
+        ".wrangler",
+        "worker/worker-configuration.d.ts"
+    ]
 }
