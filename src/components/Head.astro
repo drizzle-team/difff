@@ -1,0 +1,26 @@
+---
+import { pagePath } from "~/utils/url";
+
+interface Props {
+    title: string;
+    description: string;
+    ogType?: "website" | "article";
+}
+
+const { title, description, ogType = "website" } = Astro.props;
+const url = new URL(pagePath(Astro.url), Astro.site);
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={url} />
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+
+<meta property="og:locale" content="en_US" />
+<meta property="og:type" content={ogType} />
+<meta property="og:url" content={url} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />

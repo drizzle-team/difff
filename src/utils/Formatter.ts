@@ -1,11 +1,10 @@
-import { XMLValidator } from "fast-xml-parser";
+import { validateXML } from "~/utils/helper";
 import * as yaml from "js-yaml";
-import * as prettier from "prettier/standalone";
 import Converter from "~/utils/Converter";
 import { prettierJSSettings, prettierJSONSettings, prettierSQLSettings } from "~/utils/settings";
 import xmlFormat from "xml-formatter";
 import type { Formats } from "~/types";
-import { format as formatSQL } from "sql-formatter";
+import { formatSQL, formatWithPrettier } from "~/utils/lazy";
 
 class Formatter {
     private format: Formats;
@@ -13,7 +12,10 @@ class Formatter {
         this.format = format;
     }
 
-    private formatSql = (userInput: string, options?: { tabWidth?: number; useTabs?: boolean }) => {
+    private formatSql = async (
+        userInput: string,
+        options?: { tabWidth?: number; useTabs?: boolean }
+    ) => {
         if (!options || (!options.tabWidth && !options.useTabs))
             options = { tabWidth: 2, useTabs: false };
         if (!options.tabWidth) options = { tabWidth: 2, useTabs: options.useTabs };
@@ -21,7 +23,7 @@ class Formatter {
 
         try {
             const originalCode = userInput;
-            const formattedResult = formatSQL(originalCode, {
+            const formattedResult = await formatSQL(originalCode, {
                 ...prettierSQLSettings,
                 ...options
             });
@@ -47,7 +49,7 @@ class Formatter {
         }
         try {
             const originalCode = await Converter.urlToJson(userInput);
-            const formattedResult = await prettier.format(originalCode, {
+            const formattedResult = await formatWithPrettier(originalCode, {
                 ...prettierJSONSettings,
                 ...options
             });
@@ -73,7 +75,7 @@ class Formatter {
             options = { tabWidth: options.tabWidth, useTabs: false };
         }
         try {
-            const formattedResult = await prettier.format(userInput, {
+            const formattedResult = await formatWithPrettier(userInput, {
                 ...prettierJSSettings,
                 ...options
             });
@@ -100,9 +102,7 @@ class Formatter {
     private formatXml = (userInput: string, spaceNum?: number) => {
         if (!spaceNum) spaceNum = 2;
         if (userInput) {
-            const validationResult = XMLValidator.validate(userInput, {
-                allowBooleanAttributes: true
-            });
+            const validationResult = validateXML(userInput, true);
 
             if (validationResult === true) {
                 const options = { indentation: " ".repeat(spaceNum) };
@@ -129,7 +129,6 @@ class Formatter {
             if (this.format === "json") {
                 const options = { tabWidth: spaces, useTabs: tab };
                 return await this.formatJson(userInput, options);
-                return await this.formatSql(userInput);
             }
             if (this.format === "sql") {
                 //const options = { tabWidth: spaces, useTabs: tab };

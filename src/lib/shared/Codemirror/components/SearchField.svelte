@@ -1,7 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import type { SearchData } from "~/types";
-    import { browser } from "$app/environment";
     import AllIcon from "~/lib/icons/searchFieldIcons/AllIcon.svelte";
     import NextIcon from "~/lib/icons/searchFieldIcons/NextIcon.svelte";
     import CloseIcon from "~/lib/icons/searchFieldIcons/CloseIcon.svelte";
@@ -15,20 +14,32 @@
     import RegularExpreIcon from "~/lib/icons/searchFieldIcons/RegularExpreIcon.svelte";
     import { isSearchOpen } from "~/storage/store";
 
-    export let performSearch: (searchData: SearchData) => void;
-    export let nextSearchValue: () => void;
-    export let previousSearchValue: () => void;
-    export let selectAllMatches: () => void;
-    export let replaceNext: () => void;
-    export let replaceAll: () => void;
-    export let closeSearch: () => void;
+    interface Props {
+        performSearch: (searchData: SearchData) => void;
+        nextSearchValue: () => void;
+        previousSearchValue: () => void;
+        selectAllMatches: () => void;
+        replaceNext: () => void;
+        replaceAll: () => void;
+        closeSearch: () => void;
+    }
 
-    let search: string = "";
-    let replace: string = "";
-    let caseSensitive = false;
-    let wholeWord = false;
-    let regexp = false;
-    let showDropDown: boolean = false;
+    let {
+        performSearch,
+        nextSearchValue,
+        previousSearchValue,
+        selectAllMatches,
+        replaceNext,
+        replaceAll,
+        closeSearch
+    }: Props = $props();
+
+    let search: string = $state("");
+    let replace: string = $state("");
+    let caseSensitive = $state(false);
+    let wholeWord = $state(false);
+    let regexp = $state(false);
+    let showDropDown: boolean = $state(false);
 
     const dropDownClick = () => {
         showDropDown = !showDropDown;
@@ -45,11 +56,11 @@
 
         if (!isSettingsButton && isInsideModal) {
             $isSearchOpen = false;
-            if (browser) document.body.removeEventListener("click", handleSearchClose);
+            document.body.removeEventListener("click", handleSearchClose);
         }
     };
 
-    $: {
+    $effect(() => {
         const searchData = {
             search,
             replace,
@@ -58,16 +69,22 @@
             wholeWord
         };
         if (performSearch) performSearch(searchData);
-    }
+    });
 
     onMount(() => {
-        if (browser) document.addEventListener("click", handleSearchClose);
+        document.addEventListener("click", handleSearchClose);
     });
 </script>
 
 {#if $isSearchOpen}
     <div class="field-wrap" class:open={showDropDown} class:closed={!showDropDown}>
-        <button on:click|stopPropagation={dropDownClick} class="dropdown">
+        <button
+            onclick={(event) => {
+                event.stopPropagation();
+                dropDownClick();
+            }}
+            class="dropdown"
+        >
             {#if showDropDown}
                 <DropDownIconOpen />
             {:else}
@@ -77,6 +94,8 @@
         <div class="search">
             <div class="search_row">
                 <div class="input_wrapper">
+                    <!-- Opened by an explicit click or Ctrl/Cmd+F, so focusing the field is expected. -->
+                    <!-- svelte-ignore a11y_autofocus -->
                     <input
                         bind:value={search}
                         autocomplete="off"
@@ -89,7 +108,7 @@
                     />
                     <div class="icon-wrapper">
                         <button
-                            on:click={() => (caseSensitive = !caseSensitive)}
+                            onclick={() => (caseSensitive = !caseSensitive)}
                             title="Match case"
                             aria-labelledby="Match case"
                             aria-label="Match case"
@@ -98,7 +117,7 @@
                             ><input type="checkbox" bind:checked={caseSensitive} /><MatchCaseIcon />
                         </button>
                         <button
-                            on:click={() => (wholeWord = !wholeWord)}
+                            onclick={() => (wholeWord = !wholeWord)}
                             title="Match whole word"
                             aria-labelledby="Match whole word"
                             aria-label="Match whole word"
@@ -109,7 +128,7 @@
                             <WholeWordIcon />
                         </button>
                         <button
-                            on:click={() => (regexp = !regexp)}
+                            onclick={() => (regexp = !regexp)}
                             title="Use Regular Expression"
                             aria-labelledby="Use Regular Expression"
                             aria-label="Use Regular Expression"
@@ -122,7 +141,7 @@
                     </div>
                 </div>
                 <button
-                    on:click={previousSearchValue}
+                    onclick={previousSearchValue}
                     title="Previous Match"
                     aria-labelledby="Previous Match"
                     aria-label="Previous Match"
@@ -131,7 +150,7 @@
                     <PreciousIcon />
                 </button>
                 <button
-                    on:click={nextSearchValue}
+                    onclick={nextSearchValue}
                     title="Next Match"
                     aria-labelledby="Next Match"
                     aria-label="Next Match"
@@ -140,7 +159,7 @@
                     <NextIcon />
                 </button>
                 <button
-                    on:click={selectAllMatches}
+                    onclick={selectAllMatches}
                     title="Select All Matches"
                     aria-labelledby="Select All Matches"
                     aria-label="Select All Matches"
@@ -149,7 +168,7 @@
                     <AllIcon />
                 </button>
                 <button
-                    on:click={closeSearch}
+                    onclick={closeSearch}
                     title="Close"
                     aria-labelledby="Close"
                     aria-label="Close"
@@ -172,7 +191,7 @@
                         />
                     </div>
                     <button
-                        on:click={replaceNext}
+                        onclick={replaceNext}
                         title="Replace Next"
                         aria-labelledby="Replace Next"
                         aria-label="Replace Next"
@@ -182,7 +201,7 @@
                         <ReplaceIcon />
                     </button>
                     <button
-                        on:click={replaceAll}
+                        onclick={replaceAll}
                         title="Replace All"
                         aria-labelledby="Replace All"
                         aria-label="Replace All"

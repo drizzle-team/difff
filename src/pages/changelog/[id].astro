@@ -1,0 +1,103 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection, render } from "astro:content";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import RightArrowIcon from "~/lib/icons/RightArrowIcon.svelte";
+
+export const getStaticPaths = (async () => {
+    const posts = await getCollection("changelog");
+    return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}) satisfies GetStaticPaths;
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+/** Post ids are `DD-MM-YYYY`. */
+const formattedDate = (id: string) => {
+    const [day, month, year] = id.split("-");
+    return new Date(`${month}/${day}/${year}`).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+    });
+};
+---
+
+<BaseLayout title={post.data.metaTitle} description={post.data.metaDescription} ogType="article">
+    <div class="container">
+        <section class="wrapper">
+            <header class="header">
+                <nav class="navigation">
+                    <ul class="list">
+                        <li class="list_item">
+                            <a href="/changelog" class="list_item_link">
+                                {" "}
+                                Change & Decision log
+                            </a>
+                            <RightArrowIcon color="#e1e1e1" />
+                        </li>
+                        <li class="list_item list_item_link-active">{formattedDate(post.id)}</li>
+                    </ul>
+                </nav>
+            </header>
+            <article class="article_style">
+                <Content />
+            </article>
+        </section>
+    </div>
+</BaseLayout>
+
+<style>
+    .wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .article_style {
+        max-width: 680px;
+        margin: 0 auto;
+    }
+
+    .header {
+        @media (min-width: 768px) {
+            min-width: 680px;
+        }
+    }
+
+    .navigation {
+        display: inline-flex;
+        align-items: center;
+        margin: 50px 0 0;
+    }
+
+    .list {
+        display: inline-flex;
+        padding: 0;
+        margin: 0;
+        gap: 8px;
+        list-style: none;
+        list-style-image: none;
+    }
+
+    .list_item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        font-weight: 500;
+        font-size: 14px;
+        color: #b4b4b4;
+    }
+
+    .list_item_link {
+        display: flex;
+        align-items: center;
+        &:hover {
+            color: #ededed;
+        }
+    }
+
+    .list_item_link-active {
+        color: #ededed;
+    }
+</style>

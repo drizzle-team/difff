@@ -1,4 +1,6 @@
 {
     "cSpell.words": ["Extention", "Extentions", "performsearch", "Responce"],
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+    "editor.formatOnSave": true,
+    "oxc.typeAware": true
 }

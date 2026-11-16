@@ -2,10 +2,13 @@
     import { isSettingsOpen, storageSettings } from "~/storage/store";
     import type { Formats } from "~/types";
     import type { ChosenSetting, LocaleStorageSchema } from "~/storage/types";
-    import { browser } from "$app/environment";
     import { onMount } from "svelte";
 
-    export let formats: Formats[];
+    interface Props {
+        formats: Formats[];
+    }
+
+    let { formats }: Props = $props();
 
     const handleMenuClose = (event: MouseEvent) => {
         const target = event.target as HTMLElement;
@@ -18,7 +21,7 @@
 
         if (!isSettingsButton && isInsideModal) {
             $isSettingsOpen = false;
-            if (browser) document.body.removeEventListener("click", handleMenuClose);
+            document.body.removeEventListener("click", handleMenuClose);
         }
     };
 
@@ -57,7 +60,7 @@
 
 {#if $isSettingsOpen}
     <div class="settings">
-        {#each formats as format}
+        {#each formats as format (format)}
             <span>{format.toUpperCase()}</span>
             {#if format === "json" || format === "js" || format === "sql"}
                 <div class="setting_option">
@@ -68,7 +71,7 @@
                             class="switch-checkbox"
                             id="toggler"
                             type="checkbox"
-                            on:change={(event) => handleCheckboxChange(format, "tab", event)}
+                            onchange={(event) => handleCheckboxChange(format, "tab", event)}
                         />
                         <label
                             class="toggler-inner"
@@ -77,7 +80,7 @@
                                 ? '#e1e1e1'
                                 : '#F5F5f014'}"
                         >
-                            <span class="toggler-switcher" />
+                            <span class="toggler-switcher"></span>
                         </label>
                     </div>
                 </div>
@@ -87,7 +90,7 @@
                 <p class="option_label">Indentation-level:</p>
                 <select
                     value={$storageSettings[format].spaces}
-                    on:change={(event) => handleSelectChange(format, "spaces", event)}
+                    onchange={(event) => handleSelectChange(format, "spaces", event)}
                     name="indentationLevel"
                     class="indentation_select"
                 >

@@ -4,16 +4,28 @@
     import SuccessIcon from "~/lib/icons/SuccessIcon.svelte";
     import { getColumn, getLine } from "~/lib/shared/Codemirror/components/utils";
 
-    export let cursorPosition: { line: number; col: number };
-    export let useTabs: boolean;
-    export let indentationLevel: number;
-    export let isDownloadClicked: boolean;
-    export let isCopyClicked: boolean;
-    export let handleCopyClick: () => void;
-    export let handleDownloadClick: () => void;
+    interface Props {
+        cursorPosition: { line: number; col: number };
+        useTabs: boolean;
+        indentationLevel: number;
+        isDownloadClicked: boolean;
+        isCopyClicked: boolean;
+        handleCopyClick: () => void;
+        handleDownloadClick: () => void;
+    }
 
-    $: line = getLine(cursorPosition.line);
-    $: column = getColumn(cursorPosition.col);
+    let {
+        cursorPosition,
+        useTabs,
+        indentationLevel,
+        isDownloadClicked,
+        isCopyClicked,
+        handleCopyClick,
+        handleDownloadClick
+    }: Props = $props();
+
+    let line = $derived(getLine(cursorPosition.line));
+    let column = $derived(getColumn(cursorPosition.col));
 </script>
 
 <div class="footer">
@@ -27,7 +39,7 @@
     </div>
     <div class="icon-btn-wrap">
         <button
-            on:click={handleDownloadClick}
+            onclick={handleDownloadClick}
             title="Download"
             aria-label="Download"
             aria-labelledby="Download"
@@ -42,7 +54,7 @@
             <span class="btn_title">Download</span>
         </button>
         <button
-            on:click={handleCopyClick}
+            onclick={handleCopyClick}
             title="Copy"
             aria-label="Copy"
             aria-labelledby="Copy"

@@ -21,34 +21,9 @@ export type ToolsRoute = {
     path: string;
 };
 
-export type Post = {
-    title: string;
-    description: string;
-    date: string;
-    weekNumber: number;
-};
-
-export type Article = {
-    metaTitle: string;
-    metaDescription: string;
-};
-
-export type ResponsePosts = Post & { slug: string };
 type Coordinates = {
     line: number;
     column: number;
-};
-
-export type TwitterCard = {
-    title?: string;
-    description?: string;
-};
-
-export type OGCard = {
-    title?: string;
-    description?: string;
-    locale: string;
-    type: string;
 };
 
 export type Formats = "json" | "yaml" | "xml" | "js" | "sql";

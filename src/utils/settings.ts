@@ -1,6 +1,3 @@
-import parserBabel from "prettier/plugins/babel";
-import * as prettierPluginEstree from "prettier/plugins/estree";
-
 export const prettierJSONSettings = {
     semi: true,
     singleQuote: false,
@@ -8,8 +5,7 @@ export const prettierJSONSettings = {
     endOfLine: "lf" as const,
     printWidth: 100,
     bracketSameLine: true,
-    parser: "json-stringify",
-    plugins: [parserBabel, prettierPluginEstree]
+    parser: "json-stringify"
 };
 
 export const prettierJSSettings = {
@@ -20,12 +16,10 @@ export const prettierJSSettings = {
     printWidth: 80,
     bracketSameLine: true,
     bracketSpacing: true,
-    parser: "babel",
-    plugins: [parserBabel, prettierPluginEstree]
+    parser: "babel"
 };
 
 export const prettierSQLSettings = {
-    language: "sql" as const,
     keywordCase: "upper" as const,
     dataTypeCase: "upper" as const,
     functionCase: "upper" as const,

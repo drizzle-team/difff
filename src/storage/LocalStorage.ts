@@ -9,7 +9,7 @@ class LocalStorage {
         if (!value) return null;
         try {
             return JSON.parse(value) as LocaleStorageSchema[T];
-        } catch (err) {
+        } catch {
             return null;
         }
     };

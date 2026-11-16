@@ -1,5 +1,5 @@
 import type { FormatJSONError, FormatYamlError } from "~/types";
-import type { ValidationError } from "fast-xml-parser";
+import { SyntaxValidator } from "fast-xml-validator";
 
 export const isJSONError = (error: unknown): error is FormatJSONError => {
     return <FormatJSONError>error !== undefined && (<FormatJSONError>error).loc !== undefined;
@@ -15,12 +15,35 @@ export const isYamlError = (error: unknown): error is FormatYamlError => {
     );
 };
 
-export const isXMLError = (error: unknown): error is ValidationError => {
+export type XMLValidationError = {
+    err: { code: string; msg: string; line: number; col: number };
+};
+
+/**
+ * fast-xml-validator throws on invalid XML; keep the `true | { err }` result shape
+ * that the editor's error highlighting expects (it was fast-xml-parser's API).
+ */
+export const validateXML = (
+    input: string,
+    allowBooleanAttributes = false
+): true | XMLValidationError => {
+    try {
+        return SyntaxValidator.validate(input, { allowBooleanAttributes });
+    } catch (error) {
+        const { code, line, col, message } = error as Error &
+            Partial<{ code: string; line: number; col: number }>;
+        return {
+            err: { code: code ?? "InvalidXml", msg: message, line: line ?? 1, col: col ?? 0 }
+        };
+    }
+};
+
+export const isXMLError = (error: unknown): error is XMLValidationError => {
     return (
-        <ValidationError>error !== undefined &&
-        (<ValidationError>error).err !== undefined &&
-        (<ValidationError>error).err.line !== undefined &&
-        (<ValidationError>error).err.msg !== undefined
+        <XMLValidationError>error !== undefined &&
+        (<XMLValidationError>error).err !== undefined &&
+        (<XMLValidationError>error).err.line !== undefined &&
+        (<XMLValidationError>error).err.msg !== undefined
     );
 };
 
@@ -28,7 +51,7 @@ export const isURL = (url: string) => {
     try {
         new URL(url);
         return true;
-    } catch (err) {
+    } catch {
         return false;
     }
 };

@@ -1,0 +1,58 @@
+name: CI & Deploy
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+    workflow_dispatch:
+
+# One run per branch/PR. Superseded PR runs are cancelled; deploys on main are never
+# interrupted mid-upload, they queue instead.
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+    contents: read
+
+env:
+    ASTRO_TELEMETRY_DISABLED: 1
+    WRANGLER_SEND_METRICS: false
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        steps:
+            - uses: actions/checkout@v7
+
+            # Version comes from "packageManager" in package.json.
+            - uses: pnpm/action-setup@v6
+
+            # Caches the pnpm content-addressable store, keyed on pnpm-lock.yaml.
+            - uses: actions/setup-node@v7
+              with:
+                  node-version-file: .node-version
+                  cache: pnpm
+
+            - run: pnpm install --frozen-lockfile
+
+            # Astro's content-layer cache (parsed Markdown data store). Restored after install
+            # so pnpm never touches it; the lockfile prefix invalidates it on Astro upgrades.
+            - uses: actions/cache@v6
+              with:
+                  path: node_modules/.astro
+                  key: astro-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/content/**', 'src/content.config.ts', 'astro.config.mjs') }}
+                  restore-keys: |
+                      astro-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+
+            - run: pnpm lint
+            - run: pnpm check
+            - run: pnpm build
+
+            # Static-assets Worker: wrangler diffs file hashes and only uploads changed assets.
+            - name: Deploy to Cloudflare Workers
+              if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+              run: pnpm exec wrangler deploy
+              env:
+                  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

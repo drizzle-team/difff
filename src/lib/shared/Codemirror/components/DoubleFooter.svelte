@@ -8,36 +8,47 @@
     import { storageSettings } from "~/storage/store";
     import type { Formats } from "~/types";
 
-    export let dividerPos: number;
+    interface Props {
+        dividerPos: number;
+        formatLeft: Formats;
+        cursorPositionLeft: { line: number; col: number };
+        isFormatClicked: boolean;
+        isClearClicked: boolean;
+        handleFormatClick: () => void;
+        handleClearClick: () => void;
+        formatRight: Formats;
+        cursorPositionRight: { line: number; col: number };
+        isDownloadClicked: boolean;
+        isCopyClicked: boolean;
+        handleCopyClick: () => void;
+        handleDownloadClick: () => void;
+    }
 
-    export let formatLeft: Formats;
-    export let cursorPositionLeft: { line: number; col: number };
-    export let isFormatClicked: boolean;
-    export let isClearClicked: boolean;
-    export let handleFormatClick: () => void;
-    export let handleClearClick: () => void;
+    let {
+        dividerPos,
+        formatLeft,
+        cursorPositionLeft,
+        isFormatClicked,
+        isClearClicked,
+        handleFormatClick,
+        handleClearClick,
+        formatRight,
+        cursorPositionRight,
+        isDownloadClicked,
+        isCopyClicked,
+        handleCopyClick,
+        handleDownloadClick
+    }: Props = $props();
 
-    export let formatRight: Formats;
-    export let cursorPositionRight: { line: number; col: number };
-    export let isDownloadClicked: boolean;
-    export let isCopyClicked: boolean;
-    export let handleCopyClick: () => void;
-    export let handleDownloadClick: () => void;
+    let useTabsLeft: boolean = $derived($storageSettings[formatLeft].tab || false);
+    let indentationLevelLeft: number = $derived($storageSettings[formatLeft].spaces);
+    let useTabsRight: boolean = $derived($storageSettings[formatRight].tab || false);
+    let indentationLevelRight: number = $derived($storageSettings[formatRight].spaces);
 
-    let useTabsLeft: boolean;
-    let indentationLevelLeft: number;
-    let useTabsRight: boolean;
-    let indentationLevelRight: number;
-
-    $: useTabsLeft = $storageSettings[formatLeft].tab || false;
-    $: indentationLevelLeft = $storageSettings[formatLeft].spaces;
-    $: useTabsRight = $storageSettings[formatRight].tab || false;
-    $: indentationLevelRight = $storageSettings[formatRight].spaces;
-
-    $: lineLeft = getLine(cursorPositionLeft.line);
-    $: columnLeft = getColumn(cursorPositionLeft.col);
-    $: lineRight = getLine(cursorPositionRight.line);
-    $: columnRight = getColumn(cursorPositionRight.col);
+    let lineLeft = $derived(getLine(cursorPositionLeft.line));
+    let columnLeft = $derived(getColumn(cursorPositionLeft.col));
+    let lineRight = $derived(getLine(cursorPositionRight.line));
+    let columnRight = $derived(getColumn(cursorPositionRight.col));
 </script>
 
 <div class="footer_wrapper" style={`--pos: ${dividerPos}%;`}>
@@ -52,7 +63,7 @@
         </div>
         <div class="icon-btn-wrap">
             <button
-                on:click={handleFormatClick}
+                onclick={handleFormatClick}
                 title="download"
                 aria-label="download"
                 aria-labelledby="download"
@@ -66,7 +77,7 @@
                 {/if}
             </button>
             <button
-                on:click={handleClearClick}
+                onclick={handleClearClick}
                 title="copy"
                 aria-label="copy"
                 aria-labelledby="copy"
@@ -81,7 +92,7 @@
             </button>
         </div>
     </div>
-    <div class="divider" />
+    <div class="divider"></div>
     <div class="footer">
         <div>
             <span class="cursor-position">
@@ -93,7 +104,7 @@
         </div>
         <div class="icon-btn-wrap">
             <button
-                on:click={handleDownloadClick}
+                onclick={handleDownloadClick}
                 title="download"
                 aria-label="download"
                 aria-labelledby="download"
@@ -107,7 +118,7 @@
                 {/if}
             </button>
             <button
-                on:click={handleCopyClick}
+                onclick={handleCopyClick}
                 title="copy"
                 aria-label="copy"
                 aria-labelledby="copy"

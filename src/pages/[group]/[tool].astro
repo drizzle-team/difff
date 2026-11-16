@@ -1,0 +1,17 @@
+---
+import type { GetStaticPaths } from "astro";
+import ToolPage from "~/components/ToolPage.astro";
+import { toolPages } from "~/data/tools";
+
+export const getStaticPaths = (() =>
+    toolPages
+        .filter((page) => page.path !== "/")
+        .map((page) => {
+            const [, group, tool] = page.path.split("/");
+            return { params: { group, tool }, props: { page } };
+        })) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+---
+
+<ToolPage page={page} />
