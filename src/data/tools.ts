@@ -273,3 +273,15 @@ export const toolPages: ToolPage[] = [
         }
     }
 ];
+
+/** Standalone page (src/pages/markdown-viewer.astro): no CodeMirror editor. */
+export const markdownViewerPage: Omit<ToolPage, "editor"> = {
+    path: "/markdown-viewer",
+    title: "Markdown Viewer Online with Mermaid Diagrams & Syntax Highlighting | Difff",
+    description:
+        "View Markdown files online with difff.app. Drag & drop a .md file to preview GitHub Flavored Markdown with Mermaid diagrams, tables and syntax-highlighted code blocks.",
+    heading: "Markdown Viewer Online",
+    subheading: "Drag & Drop a .md File to Preview it with Mermaid Diagrams and Highlighted Code",
+    article: "viewers/markdown",
+    lastmod: "2026-11-16"
+};

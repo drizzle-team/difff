@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
-import { toolPages } from "~/data/tools";
+import { markdownViewerPage, toolPages } from "~/data/tools";
 
 type Url = { path: string; lastmod: string; changefreq: string; priority: string };
 
@@ -19,6 +19,12 @@ export const GET: APIRoute = async ({ site }) => {
             changefreq: "yearly",
             priority: page.path.startsWith("/minifier/") ? "0.9" : "1.0"
         })),
+        {
+            path: markdownViewerPage.path,
+            lastmod: markdownViewerPage.lastmod,
+            changefreq: "yearly",
+            priority: "1.0"
+        },
         { path: "/changelog", lastmod: latestPost, changefreq: "weekly", priority: "0.6" },
         ...posts.map((post) => ({
             path: `/changelog/${post.id}`,

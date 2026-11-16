@@ -1,0 +1,64 @@
+---
+import { getEntry, render } from "astro:content";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import MarkdownViewer from "~/lib/MarkdownViewer.svelte";
+import { markdownViewerPage as page } from "~/data/tools";
+
+const entry = await getEntry("tools", "viewers/markdown");
+if (!entry) throw new Error('Missing article "viewers/markdown"');
+const { Content } = await render(entry);
+
+const jsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Difff Markdown Viewer",
+    url: new URL(page.path, Astro.site).href,
+    description: page.description,
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Any",
+    browserRequirements: "Requires JavaScript",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    featureList: [
+        "Drag & drop Markdown files",
+        "GitHub Flavored Markdown",
+        "Syntax highlighting for code blocks",
+        "Mermaid diagrams"
+    ]
+});
+---
+
+<BaseLayout title={page.title} description={page.description}>
+    <script slot="head" type="application/ld+json" set:html={jsonLd} />
+    <div class="container">
+        <main class="main">
+            <header>
+                <h1 class="main_title">{page.heading}</h1>
+                <h2 class="main_subtitle">{page.subheading}</h2>
+            </header>
+            <section class="viewer" aria-label="Markdown viewer">
+                <MarkdownViewer client:load />
+            </section>
+            <article>
+                <Content />
+            </article>
+        </main>
+    </div>
+</BaseLayout>
+
+<style>
+    .main {
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .viewer {
+        margin: 32px 0 0;
+        width: 100%;
+    }
+
+    article {
+        width: 100%;
+    }
+</style>

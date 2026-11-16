@@ -51,8 +51,9 @@ Built with [Astro](https://astro.build) (static output) and Svelte 5 islands for
 ```sh
 pnpm install
 pnpm dev          # http://localhost:3000
-pnpm check        # astro check (TypeScript, Astro, Svelte)
-pnpm lint         # prettier + eslint
+pnpm check        # astro check + svelte-check (types, Svelte compiler/a11y warnings)
+pnpm lint         # oxfmt --check + oxlint (type-aware)
+pnpm format       # oxfmt (Prettier-compatible, formats .astro/.svelte too)
 pnpm build        # static site -> dist/
 pnpm preview      # serve dist/ with wrangler (same routing/headers as production)
 pnpm cf:deploy    # build + wrangler deploy

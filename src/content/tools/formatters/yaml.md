@@ -44,7 +44,6 @@ null:
     - null
     -  # empty also null
 
-
 #boolean
 boolean:
     - TRUE
@@ -72,6 +71,9 @@ binaryNumber: !!int 0b101010
 hexadecimalNumber: !!int 0x1C7A
 stringExample: !!str "James"
 ```
+
+YAML front matter is common in Markdown documentation. To preview `.md` files with highlighted code
+and Mermaid diagrams, use the [Markdown viewer](/markdown-viewer).
 
 ## How to use YAML formatter
 
